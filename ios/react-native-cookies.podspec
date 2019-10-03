@@ -4,7 +4,7 @@ package = JSON.parse(File.read(File.join(__dir__, '../package.json')))
 
 Pod::Spec.new do |s|
   s.name                = package['name']
-  s.version             = "3.4.0"
+  s.version             = "3.5.0"
   s.summary             = package['description']
   s.description         = <<-DESC
                             Cookie Manager for React Native
