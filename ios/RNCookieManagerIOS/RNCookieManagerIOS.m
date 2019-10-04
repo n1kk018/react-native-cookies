@@ -145,17 +145,7 @@ RCT_EXPORT_METHOD(
             reject(@"", NOT_AVAILABLE_ERROR_MESSAGE, nil);
         }
     } else {
-        NSMutableDictionary *cookies = [NSMutableDictionary dictionary];
-        for (NSHTTPCookie *c in [[NSHTTPCookieStorage sharedHTTPCookieStorage] cookiesForURL:url]) {
-            NSMutableDictionary *d = [NSMutableDictionary dictionary];
-            [d setObject:c.value forKey:@"value"];
-            [d setObject:c.name forKey:@"name"];
-            [d setObject:c.domain forKey:@"domain"];
-            [d setObject:c.path forKey:@"path"];
-            [d setObject:[self.formatter stringFromDate:c.expiresDate] forKey:@"expiresDate"];
-            [cookies setObject:d forKey:c.name];
-        }
-        resolve(cookies);
+        resolve([self createCookieList:[[NSHTTPCookieStorage sharedHTTPCookieStorage] cookiesForURL:url]]);
     }
 }
 
@@ -230,21 +220,6 @@ RCT_EXPORT_METHOD(
     }
 }
 
-RCT_EXPORT_METHOD(getAll:(RCTPromiseResolveBlock)resolve
-    rejecter:(RCTPromiseRejectBlock)reject) {
-    NSHTTPCookieStorage *cookieStorage = [NSHTTPCookieStorage sharedHTTPCookieStorage];
-    NSMutableDictionary *cookies = [NSMutableDictionary dictionary];
-    for (NSHTTPCookie *c in cookieStorage.cookies) {
-        NSMutableDictionary *d = [NSMutableDictionary dictionary];
-        [d setObject:c.value forKey:@"value"];
-        [d setObject:c.name forKey:@"name"];
-        [d setObject:c.domain forKey:@"domain"];
-        [d setObject:c.path forKey:@"path"];
-        [d setObject:[self.formatter stringFromDate:c.expiresDate] forKey:@"expiresDate"];
-        [cookies setObject:d forKey:c.name];
-    }
-}
-
 -(NSDictionary *)createCookieList:(NSArray<NSHTTPCookie *>*)cookies
 {
     NSMutableDictionary *cookieList = [NSMutableDictionary dictionary];
@@ -262,6 +237,11 @@ RCT_EXPORT_METHOD(getAll:(RCTPromiseResolveBlock)resolve
     [cookieData setObject:cookie.name forKey:@"name"];
     [cookieData setObject:cookie.domain forKey:@"domain"];
     [cookieData setObject:cookie.path forKey:@"path"];
+
+    if (cookie.expiresDate) {
+        [cookieData setObject:[self.formatter stringFromDate:cookie.expiresDate] forKey:@"expiresDate"];
+    }
+
     return cookieData;
 }
 
